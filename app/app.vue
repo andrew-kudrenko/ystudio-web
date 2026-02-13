@@ -1,6 +1,10 @@
 <template>
   <UApp>
-    <UHeader title="YStudio" />
+    <UHeader title="YStudio">
+      <template #toggle>
+        <UColorModeSelect />
+      </template>
+    </UHeader>
 
     <UMain>
       <UContainer>

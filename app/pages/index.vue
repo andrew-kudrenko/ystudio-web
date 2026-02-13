@@ -8,9 +8,9 @@ const links = ref<PageLink[]>([
     to: "/schedule",
   },
   {
-    label: "Занятия",
+    label: "Студии",
     icon: "i-lucide-star",
-    to: "/classes",
+    to: "/studios",
   },
   {
     label: "Абонементы",
@@ -18,14 +18,9 @@ const links = ref<PageLink[]>([
     to: "/memberships",
   },
   {
-    label: "Мероприятия",
+    label: "Клиенты",
     icon: "i-lucide-star",
-    to: "/memberships",
-  },
-  {
-    label: "Заметки",
-    icon: "i-lucide-star",
-    to: "/memberships",
+    to: "/clients",
   },
 ]);
 </script>
