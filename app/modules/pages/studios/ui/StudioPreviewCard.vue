@@ -10,7 +10,7 @@ defineEmits<{
 </script>
 
 <template>
-  <UCard :ui="{ header: '', body: '', footer: '' }">
+  <UCard class="flex flex-col">
     <template #header>
       <h3 class="text-xl font-semibold">
         {{ $props.studio.name }}
@@ -32,14 +32,13 @@ defineEmits<{
     </template>
 
     <template #footer>
-      <div class="flex flex-wrap gap-1 sm:gap-3">
+      <div class="flex flex-wrap gap-1 sm:gap-3 h-8">
         <UButton
           color="neutral"
           variant="subtle"
           icon="i-lucide-pencil"
           @click="$emit('click:edit', $props.studio.id)"
         >
-          Редактировать
         </UButton>
 
         <UButton
@@ -48,7 +47,6 @@ defineEmits<{
           icon="i-lucide-trash"
           @click="$emit('click:remove', $props.studio.id)"
         >
-          Удалить
         </UButton>
       </div>
     </template>

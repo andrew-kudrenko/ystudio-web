@@ -1,6 +1,6 @@
-export interface PagedList<T = unknown> {
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
+export interface PaginatedResponse<T = unknown> {
+  hasNext: boolean;
+  hasPrevious: boolean;
   pageNumber: number;
   pageSize: number;
   totalCount: number;

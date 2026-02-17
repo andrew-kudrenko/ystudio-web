@@ -1,3 +1,15 @@
+<script setup lang="ts">
+import { NavigationMenu } from "~/modules/app";
+</script>
+
 <template>
-  <slot />
+  <div class="flex">
+    <UPageAside>
+      <NavigationMenu />
+    </UPageAside>
+
+    <div>
+      <slot />
+    </div>
+  </div>
 </template>

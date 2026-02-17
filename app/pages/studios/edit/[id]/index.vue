@@ -22,7 +22,7 @@ const { data: studio, error } = await useApi<Studio>(
       size: 'xl',
       icon: 'i-lucide-circle-arrow-left',
     }"
-    :error="{ statusMessage: 'Упс...', message: error.data?.detail }"
+    :error="{ statusMessage: 'Ну надо же!', message: error.data?.detail }"
     redirect="/studios"
   />
 

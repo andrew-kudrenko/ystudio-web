@@ -1,17 +1,25 @@
 <script setup lang="ts">
-import ClientTable from "~/modules/features/clients/ui/ClientTable.vue";
-import type { PagedList, Member } from "~/types";
-
-const clients = await useApi<PagedList<Member>>("clients");
+import { MemberTable } from "~/modules/features/clients";
 </script>
 
 <template>
   <UPage>
-    <UPageHeader title="Клиенты" />
+    <UPageHeader title="Участники">
+      <template #description>
+        <div class="w-full flex justify-between gap-1 flex-wrap md:flex-nowrap">
+          <p class="">Пользуйтесь поиском!</p>
 
-    <ClientTable
-      :data="clients.data.value?.items"
-      :loading="clients.pending.value"
-    />
+          <UButton
+            icon="i-lucide-circle-plus"
+            style="align-self: center"
+            @click="navigateTo('/members/create')"
+          >
+            Создать
+          </UButton>
+        </div>
+      </template>
+    </UPageHeader>
+
+    <MemberTable />
   </UPage>
 </template>

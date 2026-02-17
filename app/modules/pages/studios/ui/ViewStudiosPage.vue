@@ -8,7 +8,11 @@ const toast = useToast();
 const isConfirmOpen = ref(false);
 const studioForRemoval = ref<Studio>();
 
-const studiosRequest = await useApi<Studio[]>("studios");
+const studiosRequest = useApi<Studio[]>("studios", {
+  server: false,
+});
+
+onBeforeMount(studiosRequest.execute);
 
 const studios = computed(() => studiosRequest.data.value ?? []);
 
@@ -85,7 +89,7 @@ async function handleRemovalConfirm(studio: Studio) {
         @cancel="handleRemovalCancel"
       />
 
-      <UPageGrid>
+      <UPageGrid style="align-items: flex-start">
         <StudioPreviewCard
           v-for="s in studios"
           :key="s.id"
