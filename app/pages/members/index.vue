@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MemberTable } from "~/modules/features/clients";
+import { MemberTable } from "~/modules/features/members";
 </script>
 
 <template>

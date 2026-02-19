@@ -32,9 +32,9 @@ const selectedIds = computed(() =>
     .filter((id) => typeof id === "number"),
 );
 
-const isSingleSelectedId = computed(() => selectedIds.value.length === 1);
+const isRemoveButtonDisabled = computed(() => selectedIds.value.length < 1);
 
-const isEmptySelectedId = computed(() => selectedIds.value.length === 0);
+const isEditButtonDisabled = computed(() => selectedIds.value.length !== 1);
 
 const columns: TableColumn<Member>[] = [
   {
@@ -136,18 +136,20 @@ async function handleEdit() {
     <div class="flex justify-between px-4 py-3.5 border-t border-accented">
       <div class="flex gap-3">
         <UButton
-          :disabled="!isSingleSelectedId"
+          :disabled="isEditButtonDisabled"
           type="button"
-          color="neutral"
+          color="warning"
+          variant="subtle"
           @click="handleEdit"
         >
           Редактировать
         </UButton>
 
         <UButton
-          :disabled="isEmptySelectedId"
+          :disabled="isRemoveButtonDisabled"
           type="button"
           color="error"
+          variant="subtle"
           @click="handleRemove"
         >
           Удалить

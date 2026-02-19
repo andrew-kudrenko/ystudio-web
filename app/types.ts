@@ -8,6 +8,32 @@ export interface PaginatedResponse<T = unknown> {
   items: T[];
 }
 
+export interface Instructor {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  specialization: string;
+  bio: string;
+  hireDate: string;
+  hourlyRate: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InstructorListItem {
+  id: number;
+  fullName: string;
+  email: string;
+  phone?: string;
+  specialization?: string;
+  hourlyRate: number;
+  isActive: boolean;
+  totalClasses: number;
+}
+
 export interface Studio {
   id: number;
   name: string;
@@ -48,17 +74,17 @@ export interface Membership {
 export interface Class {
   id: number;
   studioId: number;
-  classDate: Date;
+  instructorId: number;
+  classDate: string;
   startTime: string;
   endTime: string;
   price: number;
   capacity: number;
-  instructorName: string;
-  classType: string;
+  title: string;
   notes: string;
   isCancelled: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ClassBooking {

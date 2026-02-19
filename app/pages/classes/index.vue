@@ -3,34 +3,27 @@ import { CalendarDate } from "@internationalized/date";
 import type { TableColumn } from "@nuxt/ui";
 
 import { ClassesCalendar } from "~/modules/features/classes";
-import type { Class, ScheduleCount } from "~/types";
+import type { Class } from "~/types";
 
-const date = shallowRef(new CalendarDate(2024, 2, 1));
+const dateFrom = shallowRef(new CalendarDate(2026, 1, 1));
+const dateTo = shallowRef(new CalendarDate(2026, 4, 1));
 
 const query = computed(() => ({
-  fromDate: date.value.toString(),
-  toDate: date.value.toString(),
+  dateFrom: dateFrom.value.toString(),
+  dateTo: dateTo.value.toString(),
 }));
 
-const scheduleCount = await useApi<ScheduleCount[]>("schedule/count", {
-  query: {
-    fromDate: date.value.subtract({ years: 1 }).toString(),
-    toDate: date.value.add({ years: 1 }).toString(),
-  },
-});
-
-const schedule = await useApi<Class[]>("schedule", {
+const fetchClassesApi = await useApi<Class[]>("/classes", {
   query,
 });
 
 const columns: TableColumn<Class>[] = [
   { accessorKey: "classDate", header: "Дата" },
-  { accessorKey: "timeRange", header: "Время" },
-  { accessorKey: "classType", header: "Занятие" },
-  { accessorKey: "instructorName", header: "Инструктор" },
+  { accessorKey: "startTime", header: "Время начала" },
+  { accessorKey: "endTime", header: "Время окончания" },
+  { accessorKey: "title", header: "Название" },
   { accessorKey: "capacity", header: "Места" },
   { accessorKey: "price", header: "Цена" },
-  { accessorKey: "studioName", header: "Студия" },
 ];
 </script>
 
@@ -38,16 +31,16 @@ const columns: TableColumn<Class>[] = [
   <UPage>
     <UPageHeader title="Расписание занятий" description="На ближайшую неделю">
       <template #links>
-        <UButton @click="navigateTo('/schedule/create')">Создать</UButton>
+        <UButton @click="navigateTo('/classes/create')">Создать</UButton>
       </template>
     </UPageHeader>
 
     <UPageBody>
-      <ClassesCalendar v-model="date" :class-count="scheduleCount.data.value" />
+      <ClassesCalendar v-model="dateFrom" />
 
       <UTable
-        :data="schedule.data.value"
-        :loading="schedule.pending.value"
+        :data="fetchClassesApi.data.value"
+        :loading="fetchClassesApi.pending.value"
         :columns="columns"
       />
     </UPageBody>
