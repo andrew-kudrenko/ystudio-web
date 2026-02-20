@@ -1,48 +1,29 @@
 <script setup lang="ts">
-import { CalendarDate } from "@internationalized/date";
-import type { TableColumn } from "@nuxt/ui";
+import { ClassesTable } from "~/modules/features/classes";
+import { useClassesPage } from "~/modules/pages/classes/lib/useClassesPage";
 
-import { ClassesCalendar } from "~/modules/features/classes";
-import type { Class } from "~/types";
+import { DateRangePicker } from "~/modules/shared";
 
-const dateFrom = shallowRef(new CalendarDate(2026, 1, 1));
-const dateTo = shallowRef(new CalendarDate(2026, 4, 1));
-
-const query = computed(() => ({
-  dateFrom: dateFrom.value.toString(),
-  dateTo: dateTo.value.toString(),
-}));
-
-const fetchClassesApi = await useApi<Class[]>("/classes", {
-  query,
-});
-
-const columns: TableColumn<Class>[] = [
-  { accessorKey: "classDate", header: "Дата" },
-  { accessorKey: "startTime", header: "Время начала" },
-  { accessorKey: "endTime", header: "Время окончания" },
-  { accessorKey: "title", header: "Название" },
-  { accessorKey: "capacity", header: "Места" },
-  { accessorKey: "price", header: "Цена" },
-];
+const page = useClassesPage();
 </script>
 
 <template>
   <UPage>
-    <UPageHeader title="Расписание занятий" description="На ближайшую неделю">
+    <UPageHeader title="Занятия" description="На выбранную дату">
       <template #links>
-        <UButton @click="navigateTo('/classes/create')">Создать</UButton>
+        <UButton
+          icon="i-lucide-plus-circle"
+          @click="navigateTo('/classes/create')"
+        >
+          Создать
+        </UButton>
       </template>
     </UPageHeader>
 
     <UPageBody>
-      <ClassesCalendar v-model="dateFrom" />
+      <DateRangePicker v-model="page.dateRange.value" />
 
-      <UTable
-        :data="fetchClassesApi.data.value"
-        :loading="fetchClassesApi.pending.value"
-        :columns="columns"
-      />
+      <ClassesTable :data="page.data.value" :loading="page.loading.value" />
     </UPageBody>
   </UPage>
 </template>
