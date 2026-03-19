@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Studio } from "~/types";
+import type { InstructorListItem, Studio } from "~/types";
 
-defineProps<{ studio?: Studio }>();
+defineProps<{ instructor?: InstructorListItem }>();
 
-defineEmits<{ confirm: [studio: Studio]; cancel: [] }>();
+defineEmits<{ confirm: [value: InstructorListItem]; cancel: [] }>();
 
 const open = defineModel("open", { default: false });
 </script>
@@ -13,7 +13,7 @@ const open = defineModel("open", { default: false });
     v-model:open="open"
     :close="{ onClick: () => $emit('cancel') }"
     title="Подтвердите действие"
-    :description="`Вы действительно хотите удалить студию &quot;${$props.studio?.name}&quot;?`"
+    :description="`Вы действительно хотите удалить &quot;${$props.instructor?.fullName}&quot;?`"
   >
     <template #footer>
       <div class="flex gap-2">
@@ -22,7 +22,7 @@ const open = defineModel("open", { default: false });
         <UButton
           label="Удалить"
           color="error"
-          @click="$emit('confirm', $props.studio!)"
+          @click="$emit('confirm', $props.instructor!)"
         />
       </div>
     </template>

@@ -74,11 +74,7 @@ async function handleSubmit(event: FormSubmitEvent<CreateMemberFormValues>) {
 
 <template>
   <UPage>
-    <UPageHeader title="Редактировать участника">
-      <template #description>
-        <UBreadcrumb :items="breadcrumbItems" />
-      </template>
-    </UPageHeader>
+    <UPageHeader title="Редактировать участника"> </UPageHeader>
 
     <UPageBody>
       <UError
@@ -145,14 +141,6 @@ async function handleSubmit(event: FormSubmitEvent<CreateMemberFormValues>) {
 
           <div class="flex gap-1 sm:gap-3">
             <UButton type="submit" icon="i-lucide-save">Сохранить</UButton>
-
-            <UButton
-              variant="subtle"
-              icon="i-lucide-brush-cleaning"
-              @click="handleClear"
-            >
-              Очистить
-            </UButton>
           </div>
         </UForm>
       </div>

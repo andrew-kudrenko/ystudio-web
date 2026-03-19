@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import type { PaginatedResponse, Member } from "~/types";
+import type { Row } from "@tanstack/vue-table";
 
+import type { MemberListItemDto } from "~/modules/shared/api/members.types";
+import type { PaginatedResponse } from "~/types";
+
+const UButton = resolveComponent("UButton");
+const UDropdownMenu = resolveComponent("UDropdownMenu");
 const UCheckbox = resolveComponent("UCheckbox");
 
 const toast = useToast();
@@ -20,7 +25,7 @@ const query = computed(() => ({
   pageNumber: Math.max(pagination.value.pageIndex + 1, 1),
 }));
 
-const memberRequest = useApi<PaginatedResponse<Member>>("members", {
+const memberRequest = useApi<PaginatedResponse<MemberListItemDto>>("members", {
   key: "member-table",
   lazy: true,
   query,
@@ -36,7 +41,7 @@ const isRemoveButtonDisabled = computed(() => selectedIds.value.length < 1);
 
 const isEditButtonDisabled = computed(() => selectedIds.value.length !== 1);
 
-const columns: TableColumn<Member>[] = [
+const columns: TableColumn<MemberListItemDto>[] = [
   {
     id: "select",
     header: ({ table }) =>
@@ -57,16 +62,8 @@ const columns: TableColumn<Member>[] = [
       }),
   },
   {
-    accessorKey: "lastName",
-    header: "Фамилия",
-  },
-  {
-    accessorKey: "firstName",
+    accessorKey: "fullName",
     header: "Имя",
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
   },
   {
     accessorKey: "phone",
@@ -75,6 +72,33 @@ const columns: TableColumn<Member>[] = [
   {
     accessorKey: "notes",
     header: "Примечание",
+  },
+  {
+    id: "actions",
+    meta: {
+      class: {
+        td: "text-right",
+      },
+    },
+    cell: ({ row }) => {
+      return h(
+        UDropdownMenu,
+        {
+          content: {
+            align: "end",
+          },
+          items: getRowItems(row),
+          "aria-label": "Actions dropdown",
+        },
+        () =>
+          h(UButton, {
+            icon: "i-lucide-ellipsis-vertical",
+            color: "neutral",
+            variant: "ghost",
+            "aria-label": "Actions dropdown",
+          }),
+      );
+    },
   },
 ];
 
@@ -112,10 +136,38 @@ async function handleEdit() {
 
   await navigateTo(`/members/edit/${id}`);
 }
+
+function getRowItems(row: Row<MemberListItemDto>) {
+  return [
+    {
+      type: "label",
+      label: "Actions",
+    },
+    {
+      label: "Copy payment ID",
+      onSelect() {
+        toast.add({
+          title: "Payment ID copied to clipboard!",
+          color: "success",
+          icon: "i-lucide-circle-check",
+        });
+      },
+    },
+    {
+      type: "separator",
+    },
+    {
+      label: "View customer",
+    },
+    {
+      label: "View payment details",
+    },
+  ];
+}
 </script>
 
 <template>
-  <div class="w-full space-y-4 pb-4">
+  <UCard>
     <UTable
       ref="table"
       v-model:row-selection="rowSelection"
@@ -130,21 +182,12 @@ async function handleEdit() {
         rowCount: memberRequest.data.value?.totalCount,
         pageCount: memberRequest.data.value?.totalPages,
       }"
-      class="flex-1"
     />
 
-    <div class="flex justify-between px-4 py-3.5 border-t border-accented">
+    <div
+      class="flex justify-between items-center px-4 py-3.5 mb-0 border-t border-accented"
+    >
       <div class="flex gap-3">
-        <UButton
-          :disabled="isEditButtonDisabled"
-          type="button"
-          color="warning"
-          variant="subtle"
-          @click="handleEdit"
-        >
-          Редактировать
-        </UButton>
-
         <UButton
           :disabled="isRemoveButtonDisabled"
           type="button"
@@ -163,7 +206,7 @@ async function handleEdit() {
       </div>
     </div>
 
-    <div class="flex justify-end border-t border-default pt-4 px-4">
+    <div class="flex justify-end border-t border-default pt-2 px-2">
       <UPagination
         :page="pagination.pageIndex + 1"
         :items-per-page="memberRequest.data.value?.pageSize"
@@ -171,5 +214,5 @@ async function handleEdit() {
         @update:page="(p) => (pagination.pageIndex = p - 1)"
       />
     </div>
-  </div>
+  </UCard>
 </template>

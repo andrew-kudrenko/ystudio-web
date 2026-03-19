@@ -12,12 +12,8 @@ export interface Instructor {
   id: number;
   firstName: string;
   lastName: string;
-  email: string;
   phone: string;
-  specialization: string;
   bio: string;
-  hireDate: string;
-  hourlyRate: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -26,10 +22,7 @@ export interface Instructor {
 export interface InstructorListItem {
   id: number;
   fullName: string;
-  email: string;
   phone?: string;
-  specialization?: string;
-  hourlyRate: number;
   isActive: boolean;
   totalClasses: number;
 }
@@ -87,6 +80,20 @@ export interface Class {
   updatedAt: string;
 }
 
+export interface ClassListItem {
+  id: number;
+  studioName: string;
+  instructorName: string;
+  classDate: string;
+  startTime: string;
+  endTime: string;
+  price: number;
+  capacity: number;
+  title: string;
+  notes: string;
+  isCancelled: boolean;
+}
+
 export interface ClassBooking {
   id: number;
   classId: number;
@@ -98,4 +105,14 @@ export interface ClassBooking {
   notes: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ClassBookingListItemDto {
+  id: number;
+  status: string;
+  memberFullName: string;
+  classDate: string;
+  classTitle: string;
+  updatedAt: string;
+  notes: string;
 }

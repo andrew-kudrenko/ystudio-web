@@ -1,4 +1,4 @@
-import type { Class } from "~/types";
+import type { Class, ClassListItem } from "~/types";
 import {
   queryFromDateRange,
   useClassesPageQuery,
@@ -23,13 +23,15 @@ export function useClassesPage() {
 
   const fetchClassesQuery = computed(() => queryFromDateRange(dateRange.value));
 
-  const fetchClassesApi = useApi<Class[]>("/classes", {
+  const fetchClassesApi = useApi<ClassListItem[]>("/classes", {
     query: fetchClassesQuery,
     lazy: true,
-    key: "classes.fetch",
+    key: "classes.all.fetch",
   });
 
-  watchEffect(async () => {
+  watch(dateRange, async () => {
+    console.log("watch daterange", { ...dateRange.value }, isDateRangeValid());
+
     if (isDateRangeValid()) {
       await fetchClassesApi.execute();
       classesPageQuery.sync(dateRange.value);
@@ -72,8 +74,6 @@ export function dateRangeFromQuery(
       end,
     };
   } catch (e) {
-    console.warn("Parse date error", e);
-
     const start = zonedDateTimeToCalendarDateTime(now(getLocalTimeZone()));
 
     const end = start

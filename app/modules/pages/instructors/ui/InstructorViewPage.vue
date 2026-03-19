@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { Instructor, InstructorListItem } from "~/types";
 
-import InstructorPreviewCard from "./InstructorPreviewCard.vue";
+import InstructorRemoveConfirm from "./InstructorRemoveConfirm.vue";
+import InstructorsTable from "./InstructorsTable.vue";
 
 const toast = useToast();
 
 const isConfirmOpen = ref(false);
-const forRemoval = ref<Instructor>();
+const forRemoval = ref<InstructorListItem>();
 
 const fetchAllApi = useApi<InstructorListItem[]>("instructors", {
   server: false,
@@ -16,7 +17,7 @@ onBeforeMount(fetchAllApi.execute);
 
 const instructors = computed(() => fetchAllApi.data.value ?? []);
 
-function handleRemoveButtonClick(value: Instructor) {
+function handleRemoveButtonClick(value: InstructorListItem) {
   forRemoval.value = value;
   isConfirmOpen.value = true;
 }
@@ -33,7 +34,7 @@ function handleRemovalCancel() {
   });
 }
 
-async function handleRemovalConfirm(value: Instructor) {
+async function handleRemovalConfirm(value: InstructorListItem) {
   const { error } = await useApi(`instructors/${value.id}`, {
     method: "delete",
   });
@@ -53,7 +54,7 @@ async function handleRemovalConfirm(value: Instructor) {
   forRemoval.value = undefined;
 
   toast.add({
-    title: "Студия удалена",
+    title: "Инструктор удален",
     description: "Данные на странице обновляются",
     color: "primary",
     icon: "i-lucide-circle-check",
@@ -82,22 +83,14 @@ async function handleRemovalConfirm(value: Instructor) {
     </UPageHeader>
 
     <UPageBody>
-      <!-- <InstructorRemoveConfirm
+      <InstructorRemoveConfirm
         v-model:open="isConfirmOpen"
-        :studio="instructorForRemoval"
+        :instructor="forRemoval"
         @confirm="handleRemovalConfirm($event)"
         @cancel="handleRemovalCancel"
-      /> -->
+      />
 
-      <UPageGrid style="align-items: flex-start">
-        <InstructorPreviewCard
-          v-for="i in instructors"
-          :key="i.id"
-          :instructor="i"
-          @click:edit="navigateTo(`/instructors/edit/${i.id}`)"
-          @click:remove="handleRemoveButtonClick(i)"
-        />
-      </UPageGrid>
+      <InstructorsTable />
     </UPageBody>
   </UPage>
 </template>

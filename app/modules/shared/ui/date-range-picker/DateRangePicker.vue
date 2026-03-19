@@ -22,7 +22,14 @@ const modelValue = defineModel<DateRangePickerModelValue>({ required: true });
     </UButton>
 
     <template #content>
-      <UCalendar v-model="modelValue" class="p-2" :number-of-months="2" range />
+      <UCalendar v-model="modelValue" class="p-2" :number-of-months="1" range />
+
+      <div class="p-2 flex gap-2">
+        <UButton size="sm" color="neutral" variant="outline">Неделя</UButton>
+        <UButton size="sm" color="neutral" variant="outline">2 Недели</UButton>
+
+        <UButton size="sm" color="neutral" variant="outline">Месяц</UButton>
+      </div>
     </template>
   </UPopover>
 </template>

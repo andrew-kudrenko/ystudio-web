@@ -55,11 +55,7 @@ async function handleSubmit(event: FormSubmitEvent<CreateStudioFormValues>) {
 
 <template>
   <UPage>
-    <UPageHeader title="Создать студию">
-      <template #description>
-        <UBreadcrumb :items="breadcrumbItems" />
-      </template>
-    </UPageHeader>
+    <UPageHeader title="Создать студию"> </UPageHeader>
 
     <UPageBody>
       <div style="max-width: 600px">
@@ -99,14 +95,6 @@ async function handleSubmit(event: FormSubmitEvent<CreateStudioFormValues>) {
 
           <div class="flex gap-1 sm:gap-3">
             <UButton type="submit" icon="i-lucide-save">Создать</UButton>
-
-            <UButton
-              variant="subtle"
-              icon="i-lucide-brush-cleaning"
-              @click="handleClear"
-            >
-              Очистить
-            </UButton>
           </div>
         </UForm>
       </div>

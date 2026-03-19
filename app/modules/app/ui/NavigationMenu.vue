@@ -8,14 +8,14 @@ const items = ref<NavigationMenuItem[][]>([
       type: "label",
     },
     {
-      label: "Занятия",
-      icon: "i-lucide-calendar",
-      to: "/classes",
-    },
-    {
       label: "Бронирование",
       icon: "i-lucide-calendar-check",
       to: "/class-bookings",
+    },
+    {
+      label: "Занятия",
+      icon: "i-lucide-calendar",
+      to: "/classes",
     },
     {
       label: "Участники",
@@ -38,13 +38,13 @@ const items = ref<NavigationMenuItem[][]>([
       to: "/memberships",
     },
   ],
-  [
-    {
-      label: "О проекте",
-      icon: "i-lucide-info",
-      to: "/about",
-    },
-  ],
+  // [
+  //   {
+  //     label: "О проекте",
+  //     icon: "i-lucide-info",
+  //     to: "/about",
+  //   },
+  // ],
 ]);
 </script>
 

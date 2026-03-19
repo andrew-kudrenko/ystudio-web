@@ -19,8 +19,8 @@ const formValues = reactive<InstructorEditFormValues>({
 
 const breadcrumbItems: BreadcrumbItem[] = [
   { name: "home", label: "Домашняя" },
-  { name: "studios", label: "Студии" },
-  { name: "studios.create", label: "Редактировать" },
+  { name: "instructors", label: "Инструкторы" },
+  { name: "instructors.edit", label: "Редактировать" },
 ];
 
 function handleClear() {
@@ -69,11 +69,7 @@ async function handleSubmit(event: FormSubmitEvent<InstructorEditFormValues>) {
 
 <template>
   <UPage>
-    <UPageHeader title="Редактировать студию">
-      <template #description>
-        <UBreadcrumb :items="breadcrumbItems" />
-      </template>
-    </UPageHeader>
+    <UPageHeader title="Редактировать студию"></UPageHeader>
 
     <UPageBody>
       <div style="max-width: 600px">
@@ -113,14 +109,6 @@ async function handleSubmit(event: FormSubmitEvent<InstructorEditFormValues>) {
 
           <div class="flex gap-1 sm:gap-3">
             <UButton type="submit" icon="i-lucide-save">Редактировать</UButton>
-
-            <UButton
-              variant="subtle"
-              icon="i-lucide-brush-cleaning"
-              @click="handleClear"
-            >
-              Очистить
-            </UButton>
           </div>
         </UForm>
       </div>

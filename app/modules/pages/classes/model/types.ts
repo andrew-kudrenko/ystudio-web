@@ -1,12 +1,10 @@
-import { CalendarDate, Time } from "@internationalized/date";
-
 export interface CreateClassFormValues {
   studioId?: number;
   instructorId?: number;
   title: string;
-  classDate: CalendarDate;
-  startTime: Time;
-  endTime: Time;
+  classDate?: string;
+  startTime?: string;
+  endTime?: string;
   price: number;
   capacity: number;
 }
