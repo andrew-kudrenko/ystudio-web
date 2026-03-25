@@ -80,7 +80,7 @@ export interface Class {
   updatedAt: string;
 }
 
-export interface ClassListItem {
+export interface ClassListItemDto {
   id: number;
   studioName: string;
   instructorName: string;

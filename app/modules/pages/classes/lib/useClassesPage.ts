@@ -1,4 +1,4 @@
-import type { Class, ClassListItem } from "~/types";
+import type { Class, ClassListItemDto } from "~/types";
 import {
   queryFromDateRange,
   useClassesPageQuery,
@@ -23,7 +23,7 @@ export function useClassesPage() {
 
   const fetchClassesQuery = computed(() => queryFromDateRange(dateRange.value));
 
-  const fetchClassesApi = useApi<ClassListItem[]>("/classes", {
+  const fetchClassesApi = useApi<ClassListItemDto[]>("/classes", {
     query: fetchClassesQuery,
     lazy: true,
     key: "classes.all.fetch",

@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
+import type { TableColumn } from "@nuxt/ui";
 import type {
   ClassMemberListItemDto,
   ClassVisitDto,
 } from "~/modules/shared/api/classes.types";
 import ClassMembersTable from "./ClassMembersTable.vue";
-
-const UCheckbox = resolveComponent("UCheckbox");
+import BadgeStatus from "~/modules/shared/ui/badge/BadgeStatus.vue";
+import { indicesOfSelectedRows } from "~/modules/shared/lib/table.utils";
+import TableHeaderCheckbox from "~/modules/shared/ui/table/TableHeaderCheckbox.vue";
+import TableRowCheckbox from "~/modules/shared/ui/table/TableRowCheckbox.vue";
+import PatchVisits from "~/modules/entities/classes/ui/PatchVisits.vue";
+import type { Class, Instructor, Studio } from "~/types";
 
 const props = defineProps<{ id: number }>();
 
@@ -15,49 +19,51 @@ const toast = useToast();
 const fetchClassMembersQuery = useApi<ClassMemberListItemDto[]>(
   () => `/classes/${props.id}/members`,
   {
-    key: `classes.${props.id}.members`,
+    key: `classes.${props.id}.members-${Date.now()}`,
     lazy: true,
+    immediate: false,
   },
 );
 
-const fetchClassVisitsQuery = useApi<ClassVisitDto[]>(
-  () => `/classes/${props.id}/visits`,
-  {
-    key: `classes.${props.id}.visits`,
-    lazy: true,
-  },
-);
+const fetchClassVisitsQuery = useApi<{
+  class: Class;
+  instructor: Instructor;
+  studio: Studio;
+  visits: ClassVisitDto[];
+}>(() => `/classes/${props.id}/visits`, {
+  key: `classes.${props.id}.visits-${Date.now()}`,
+  lazy: true,
+});
 
 const memberData = computed(() => fetchClassMembersQuery.data.value);
 const visitData = computed(() => fetchClassVisitsQuery.data.value);
 
 const table = useTemplateRef("table");
 
+const isLoading = ref(false);
 const rowSelection = ref<Record<string, boolean>>({});
+
+const selectedRowIds = computed(() =>
+  indicesOfSelectedRows(rowSelection.value)
+    .map((i) => fetchClassVisitsQuery.data.value?.visits?.[i]?.member?.id)
+    .filter(Boolean),
+);
+
+const isOperationButtonDisabled = computed(
+  () => selectedRowIds.value.length < 1,
+);
 
 const columns: TableColumn<ClassVisitDto>[] = [
   {
     id: "select",
-    header: ({ table }) =>
-      h(UCheckbox, {
-        modelValue: table.getIsSomePageRowsSelected()
-          ? "indeterminate"
-          : table.getIsAllPageRowsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
-          table.toggleAllPageRowsSelected(!!value),
-        "aria-label": "Select all",
-      }),
-    cell: ({ row }) =>
-      h(UCheckbox, {
-        modelValue: row.getIsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
-          row.toggleSelected(!!value),
-        "aria-label": "Select row",
-      }),
   },
   {
     accessorFn: (v) => `${v.member.lastName} ${v.member.firstName}`,
     header: "Имя",
+  },
+  {
+    id: "visit-status",
+    header: "Посещение",
   },
   { id: "payment-status", header: "Статус оплаты" },
   {
@@ -67,47 +73,9 @@ const columns: TableColumn<ClassVisitDto>[] = [
   { id: "booking-status", header: "Статус брони" },
 ];
 
-const paymentMethodItems: DropdownMenuItem[] = [
-  {
-    label: "Наличными",
-    icon: "i-lucide-banknote",
-  },
-  {
-    label: "Онлайн",
-    icon: "i-lucide-credit-card",
-  },
-  {
-    label: "Абонемент",
-    icon: "i-lucide-ticket",
-  },
-];
-
-const paymentStatusItems: DropdownMenuItem[] = [
-  {
-    label: "Успех",
-    icon: "i-lucide-banknote",
-  },
-  {
-    label: "Ошибка",
-    icon: "i-lucide-circle-x",
-  },
-  {
-    label: "Отмена",
-    icon: "i-lucide-circle-slash",
-  },
-  {
-    label: "В процессе",
-    icon: "i-lucide-clock-fading",
-  },
-  {
-    label: "Не оплачен",
-    icon: "i-lucide-banknote-x",
-  },
-];
-
 const isModalOpen = ref(false);
 
-function getColorOfPaymentStatus(value?: number) {
+function getColorOfVisitStatus(value?: number) {
   switch (value) {
     case 0:
       return "info";
@@ -115,25 +83,6 @@ function getColorOfPaymentStatus(value?: number) {
       return "success";
     case 2:
       return "error";
-    case 3:
-      return "warning";
-    case 4:
-      return "warning";
-    default:
-      return "neutral";
-  }
-}
-
-function getColorOfBookingStatus(value?: number) {
-  switch (value) {
-    case 0:
-      return "info";
-    case 1:
-      return "success";
-    case 2:
-      return "error";
-    case 3:
-      return "warning";
     default:
       return "neutral";
   }
@@ -149,10 +98,7 @@ async function handleAddMembers(memberIds: number[]) {
   );
 
   if (addClassVisitMembersQuery.status.value === "success") {
-    await Promise.allSettled([
-      fetchClassVisitsQuery.refresh(),
-      fetchClassMembersQuery.refresh(),
-    ]);
+    await refreshPageData();
 
     toast.add({
       title: "Участники добавлены",
@@ -173,104 +119,185 @@ async function handleAddMembers(memberIds: number[]) {
     });
   }
 }
+
+async function refreshPageData() {
+  isLoading.value = true;
+
+  await Promise.allSettled([
+    fetchClassVisitsQuery.refresh(),
+    fetchClassMembersQuery.refresh(),
+  ]);
+
+  isLoading.value = false;
+}
+
+async function handlePatchVisits(formValues: any) {
+  const query = await useApi<number>(
+    () => `/classes/${props.id}/visits`,
+
+    {
+      key: `classes.${props.id}.visits.patch.${Date.now()}`,
+      method: "patch",
+      body: {
+        memberIds: selectedRowIds.value,
+        ...formValues,
+      },
+    },
+  );
+
+  if (query.status.value === "success") {
+    toast.add({
+      title: "Обновлено",
+      description: `Обновлено ${query.data.value} записей`,
+      color: "primary",
+      icon: "i-lucide-message-circle-check",
+    });
+
+    rowSelection.value = {};
+    await refreshPageData();
+  } else {
+    toast.add({
+      title: query.error.value?.data?.title ?? "Ошибка",
+      description:
+        query.error.value?.data?.detail ?? query.error.value?.message,
+      color: "error",
+      icon: "i-lucide-circle-x",
+    });
+  }
+}
 </script>
 
 <template>
   <UPage>
-    <UPageHeader title="Занятие" />
+    <UPageHeader
+      :title="visitData?.class.title"
+      :description="visitData?.class.notes"
+    />
 
     <UPageBody>
-      <UCard>
-        <template #header>
-          <div class="flex justify-betrween items-center gap-2 flex-wrap">
-            <UModal
-              v-model:open="isModalOpen"
-              title="Выбрать участников"
-              :dismissible="false"
-            >
-              <UButton
-                variant="subtle"
-                color="primary"
-                icon="i-lucide-circle-plus"
-                size="sm"
+      <div class="flex flex-col gap-4">
+        <UCard>
+          <template #default>
+            <div class="flex flex-col gap-2">
+              <div class="flex gap-2 items-center">
+                <UAvatar icon="i-lucide-clock" />
+
+                <p class="text-base">
+                  с <b>{{ visitData?.class.startTime }}</b> до
+                  <b>{{ visitData?.class.endTime }}</b>
+                </p>
+              </div>
+
+              <USeparator />
+
+              <div class="flex justify-between">
+                <div class="flex gap-2 items-center">
+                  <UAvatar icon="i-lucide-user" />
+
+                  <h5 class="text-base font-semibold">
+                    {{ visitData?.instructor["fullName"] }}
+                  </h5>
+                </div>
+
+                <UButton
+                  variant="subtle"
+                  color="secondary"
+                  label="Перейти"
+                  size="sm"
+                />
+              </div>
+
+              <USeparator />
+
+              <div class="flex justify-between">
+                <div class="flex gap-2 items-center">
+                  <UAvatar icon="i-lucide-house-heart" />
+
+                  <h5 class="text-base font-semibold">
+                    {{ visitData?.studio.name }}
+                  </h5>
+                </div>
+
+                <UButton
+                  variant="subtle"
+                  color="secondary"
+                  label="Перейти"
+                  size="sm"
+                />
+              </div>
+            </div>
+          </template>
+        </UCard>
+
+        <UCard>
+          <template #header>
+            <div class="flex justify-betrween items-center gap-2 flex-wrap">
+              <UModal
+                v-model:open="isModalOpen"
+                title="Выбрать участников"
+                :dismissible="false"
               >
-                Добавить участников
-              </UButton>
-
-              <template #body>
-                <ClassMembersTable
-                  :data="memberData"
-                  :loading="fetchClassMembersQuery.pending.value"
-                  @add="handleAddMembers($event)"
-                />
-              </template>
-            </UModal>
-
-            <UFieldGroup>
-              <UButton
-                color="neutral"
-                variant="subtle"
-                label="Способ оплаты"
-                size="sm"
-              />
-
-              <UDropdownMenu :items="paymentMethodItems">
                 <UButton
-                  color="neutral"
-                  variant="outline"
-                  icon="i-lucide-chevron-down"
+                  variant="subtle"
+                  color="primary"
+                  icon="i-lucide-circle-plus"
                   size="sm"
-                />
-              </UDropdownMenu>
-            </UFieldGroup>
+                >
+                  Добавить участников
+                </UButton>
 
-            <UFieldGroup>
-              <UButton
-                color="neutral"
-                variant="subtle"
-                label="Статус оплаты"
-                size="sm"
-              />
+                <template #body>
+                  <ClassMembersTable
+                    :data="memberData"
+                    :loading="fetchClassMembersQuery.pending.value"
+                    @add="handleAddMembers($event)"
+                  />
+                </template>
+              </UModal>
 
-              <UDropdownMenu :items="paymentStatusItems">
-                <UButton
-                  color="neutral"
-                  variant="outline"
-                  icon="i-lucide-chevron-down"
-                  size="sm"
-                />
-              </UDropdownMenu>
-            </UFieldGroup>
-          </div>
-        </template>
-
-        <UTable
-          ref="table"
-          sticky
-          v-model:row-selection="rowSelection"
-          :columns="columns"
-          :data="visitData"
-          style="max-height: min(400px, 75vh)"
-        >
-          <template #payment-status-cell="{ row }">
-            <UBadge
-              variant="outline"
-              :color="getColorOfPaymentStatus(row.original.lastPayment?.status)"
-            >
-              {{ row.original.lastPayment?.statusDisplayName ?? "Нет данных" }}
-            </UBadge>
+              <PatchVisits @submit="handlePatchVisits" />
+            </div>
           </template>
 
-          <template #booking-status-cell="{ row }">
-            <UBadge
-              variant="outline"
-              :color="getColorOfBookingStatus(row.original.booking?.status)"
-            >
-              {{ row.original.booking?.statusDisplayName ?? "Нет данных" }}
-            </UBadge>
-          </template>
-        </UTable>
-      </UCard>
+          <UTable
+            ref="table"
+            sticky
+            v-model:row-selection="rowSelection"
+            :columns="columns"
+            :data="visitData?.visits"
+            style="max-height: min(400px, 75vh)"
+          >
+            <template #select-header="{ table }">
+              <TableHeaderCheckbox :table="table" />
+            </template>
+
+            <template #select-cell="{ row }">
+              <TableRowCheckbox :row="row" />
+            </template>
+
+            <template #visit-status-cell="{ row }">
+              <BadgeStatus
+                :color="getColorOfVisitStatus(row.original.visitStatus)"
+                :text="row.original.visitStatusDisplayName"
+              />
+            </template>
+
+            <template #payment-status-cell="{ row }">
+              <BadgeStatus
+                :color="getColorOfVisitStatus(row.original.lastPayment?.status)"
+                :text="row.original.lastPayment?.statusDisplayName"
+              />
+            </template>
+
+            <template #booking-status-cell="{ row }">
+              <BadgeStatus
+                :color="getColorOfVisitStatus(row.original.booking?.status)"
+                :text="row.original.booking?.statusDisplayName"
+              />
+            </template>
+          </UTable>
+        </UCard>
+      </div>
     </UPageBody>
   </UPage>
 </template>

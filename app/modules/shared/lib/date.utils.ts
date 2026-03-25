@@ -25,3 +25,5 @@ export function zonedDateTimeToCalendarDateTime(value: ZonedDateTime) {
 }
 
 export type DateRange<D> = { start: D; end?: D };
+
+export const DATE_FORMATTER = Intl.DateTimeFormat("ru-RU", {});

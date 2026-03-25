@@ -1,4 +1,5 @@
-import type { UseFetchOptions } from "nuxt/app";
+import type { AsyncData, UseFetchOptions } from "nuxt/app";
+import type { ApiFetchError } from "~/modules/shared/lib/api.utils";
 
 export function useApi<Raw, Data = Raw>(
   url: string | (() => string),
@@ -7,5 +8,5 @@ export function useApi<Raw, Data = Raw>(
   return useFetch(url, {
     ...options,
     $fetch: useNuxtApp().$api as typeof $fetch,
-  });
+  }) as AsyncData<Data, ApiFetchError>;
 }

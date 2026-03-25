@@ -1,7 +1,3 @@
-<script setup lang="ts">
-import { CreateClassBookingPage } from "~/modules/pages/class-bookings";
-</script>
+<script setup lang="ts"></script>
 
-<template>
-  <CreateClassBookingPage />
-</template>
+<template>1</template>

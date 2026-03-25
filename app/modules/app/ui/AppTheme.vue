@@ -3,7 +3,7 @@
     :ui="{
       modal: {
         header: 'sm:p-2 p-2 ',
-        body: 'sm:p-2 p-2',
+        body: 'sm:p-2 p-2 flex flex-col gap-2',
         footer: 'sm:p-2 p-2',
       },
       pageHeader: {

@@ -66,6 +66,8 @@ export interface ClassBookingDto {
 }
 
 export interface ClassVisitDto {
+  visitStatus?: number;
+  visitStatusDisplayName?: string;
   member: ClassVisitMemberDto;
   lastPayment?: ClassPaymentDto;
   booking?: ClassBookingDto;

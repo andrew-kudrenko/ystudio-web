@@ -2,8 +2,8 @@
 import type { TableColumn } from "@nuxt/ui";
 
 import type { ClassMemberListItemDto } from "~/modules/shared/api/classes.types";
-
-const UCheckbox = resolveComponent("UCheckbox");
+import TableHeaderCheckbox from "~/modules/shared/ui/table/TableHeaderCheckbox.vue";
+import TableRowCheckbox from "~/modules/shared/ui/table/TableRowCheckbox.vue";
 
 const props = defineProps<{
   data?: ClassMemberListItemDto[];
@@ -19,25 +19,7 @@ const table = useTemplateRef("table");
 const rowSelection = ref<Record<number, boolean>>({});
 
 const columns: TableColumn<ClassMemberListItemDto>[] = [
-  {
-    id: "select",
-    header: ({ table }) =>
-      h(UCheckbox, {
-        modelValue: table.getIsSomePageRowsSelected()
-          ? "indeterminate"
-          : table.getIsAllPageRowsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
-          table.toggleAllPageRowsSelected(!!value),
-        "aria-label": "Select all",
-      }),
-    cell: ({ row }) =>
-      h(UCheckbox, {
-        modelValue: row.getIsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
-          row.toggleSelected(!!value),
-        "aria-label": "Select row",
-      }),
-  },
+  { id: "select" },
   { accessorKey: "fullName", header: "Имя" },
   { accessorKey: "phone", header: "Телефон" },
 ];
@@ -101,7 +83,15 @@ const isAddButtonDisabled = computed(() => selectedMemberIds.value.length < 1);
       :data="$props.data"
       :loading="$props.loading"
       style="max-height: min(50vh, 400px)"
-    />
+    >
+      <template #select-header="{ table }">
+        <TableHeaderCheckbox :table="table" />
+      </template>
+
+      <template #select-cell="{ row }">
+        <TableRowCheckbox :row="row" />
+      </template>
+    </UTable>
 
     <div class="px-2 py-2 border-t border-accented text-sm text-muted">
       {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} из

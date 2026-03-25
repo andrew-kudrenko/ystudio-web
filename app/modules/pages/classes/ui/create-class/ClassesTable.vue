@@ -2,9 +2,9 @@
 import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
 import type { Cell, Row, TableMeta } from "@tanstack/vue-table";
 
-import type { ClassListItem } from "~/types";
+import type { ClassListItemDto } from "~/types";
 
-defineProps<{ data?: ClassListItem[]; loading?: boolean }>();
+defineProps<{ data?: ClassListItemDto[]; loading?: boolean }>();
 
 const emit = defineEmits<{
   edit: [id: number];
@@ -12,9 +12,9 @@ const emit = defineEmits<{
   view: [id: number];
 }>();
 
-const meta: TableMeta<ClassListItem> = {
+const meta: TableMeta<ClassListItemDto> = {
   class: {
-    tr: (row: Row<ClassListItem>) => {
+    tr: (row: Row<ClassListItemDto>) => {
       if (row.original.isCancelled) {
         return "bg-warning/10";
       }
@@ -34,7 +34,7 @@ const meta: TableMeta<ClassListItem> = {
 
 const dateFormatter = new Intl.DateTimeFormat("ru-RU", { dateStyle: "short" });
 
-const columns: TableColumn<ClassListItem>[] = [
+const columns: TableColumn<ClassListItemDto>[] = [
   {
     accessorKey: "classDate",
     accessorFn: (v) => dateFormatter.format(new Date(v.classDate)),
@@ -60,7 +60,7 @@ const columns: TableColumn<ClassListItem>[] = [
   { id: "action" },
 ];
 
-function getClassDateRowSpan(cell: Cell<ClassListItem, unknown>) {
+function getClassDateRowSpan(cell: Cell<ClassListItemDto, unknown>) {
   const { classDate } = cell.row.original;
   const rows = cell.getContext().table.getRowModel().rows;
   const rowIndex = rows.findIndex(
@@ -80,7 +80,7 @@ function getClassDateRowSpan(cell: Cell<ClassListItem, unknown>) {
   return `${span}`;
 }
 
-function getClassDateClass(cell: Cell<ClassListItem, unknown>) {
+function getClassDateClass(cell: Cell<ClassListItemDto, unknown>) {
   const { classDate } = cell.row.original;
 
   const rows = cell.getContext().table.getRowModel().rows;

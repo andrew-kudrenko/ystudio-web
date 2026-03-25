@@ -1,27 +1,38 @@
 <script setup lang="ts">
-import ClassBookingsTable from "./ClassBookingsTable.vue";
+import {
+  ClassBookingsTable,
+  useClassBookings,
+} from "~/modules/entities/class-bookings";
+import { BookClassModal } from "~/modules/features/book-class";
+
+const { upcomingClassBookings, loading, fetchUpcomingClassBookings } =
+  useClassBookings();
+
+onBeforeMount(fetchUpcomingClassBookings);
+
+const isBookClassModalOpen = ref(false);
+
+async function handleBooked() {
+  isBookClassModalOpen.value = false;
+  await fetchUpcomingClassBookings();
+}
 </script>
 
 <template>
   <UPage>
-    <UPageHeader title="Бронирование занятий">
-      <template #description>
-        <div class="w-full flex justify-between gap-1 flex-wrap md:flex-nowrap">
-          <p class="">Управляйте записями на занятия</p>
-
-          <UButton
-            icon="i-lucide-circle-plus"
-            style="align-self: center"
-            @click="navigateTo('/class-bookings/create')"
-          >
-            Создать
-          </UButton>
-        </div>
-      </template>
-    </UPageHeader>
+    <UPageHeader title="Бронирование" description="Управляйте записями" />
 
     <UPageBody>
-      <ClassBookingsTable />
+      <ClassBookingsTable
+        :data="upcomingClassBookings"
+        :loading="loading"
+        @click:create="isBookClassModalOpen = true"
+      />
+
+      <BookClassModal
+        v-model:open="isBookClassModalOpen"
+        @booked="handleBooked"
+      />
     </UPageBody>
   </UPage>
 </template>
